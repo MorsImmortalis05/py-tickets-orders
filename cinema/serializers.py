@@ -1,8 +1,15 @@
 from django.db import transaction
 from rest_framework import serializers
 
-from cinema.models import Genre, Actor, CinemaHall, Movie, MovieSession, \
-    Order, Ticket
+from cinema.models import (
+    Genre,
+    Actor,
+    CinemaHall,
+    Movie,
+    MovieSession,
+    Order,
+    Ticket
+)
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -42,9 +49,13 @@ class MovieDetailSerializer(MovieSerializer):
     genres = GenreSerializer(many=True, read_only=True)
     actors = ActorSerializer(many=True, read_only=True)
 
-    class Meta:
-        model = Movie
-        fields = ("id", "title", "description", "duration", "genres", "actors")
+class MovieMovieSessionSerializer(MovieSerializer):
+    genres = serializers.SlugRelatedField(
+        many=True, read_only=True, slug_field="name"
+    )
+    actors = serializers.SlugRelatedField(
+        many=True, read_only=True, slug_field="full_name"
+    )
 
 
 class MovieSessionSerializer(serializers.ModelSerializer):
@@ -83,7 +94,7 @@ class TicketSerializer(serializers.ModelSerializer):
 
 
 class MovieSessionDetailSerializer(MovieSessionSerializer):
-    movie_title = MovieListSerializer(many=False, read_only=True)
+    movie = MovieMovieSessionSerializer(many=False, read_only=True)
     cinema_hall = CinemaHallSerializer(many=False, read_only=True)
     taken_places = TicketSerializer(many=True, source="tickets")
 
@@ -92,7 +103,7 @@ class MovieSessionDetailSerializer(MovieSessionSerializer):
         fields = (
             "id",
             "show_time",
-            "movie_title",
+            "movie",
             "cinema_hall",
             "taken_places"
         )
