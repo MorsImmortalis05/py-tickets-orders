@@ -38,7 +38,6 @@ class MovieViewSet(viewsets.ModelViewSet):
     queryset = Movie.objects.all()
     serializer_class = MovieSerializer
 
-
     def list_ids(self, param):
         return [int(pk) for pk in param.split(",") if
                 pk.strip().isdigit()]
