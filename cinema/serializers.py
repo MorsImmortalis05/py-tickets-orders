@@ -101,8 +101,7 @@ class MovieSessionDetailSerializer(MovieSessionSerializer):
     taken_places = SerializerMethodField()
 
     def get_taken_places(self, obj):
-        tickets = Ticket.objects.filter(movie_session=obj)
-        return [{'row': t.row, 'seat': t.seat} for t in obj.tickets.all()]
+        return [{"row": t.row, "seat": t.seat} for t in obj.tickets.all()]
 
     class Meta:
         model = MovieSession
