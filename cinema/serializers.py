@@ -1,5 +1,6 @@
 from django.db import transaction
 from rest_framework import serializers
+from rest_framework.fields import SerializerMethodField
 
 from cinema.models import (
     Genre,
@@ -73,7 +74,7 @@ class MovieSessionListSerializer(MovieSessionSerializer):
     cinema_hall_capacity = serializers.IntegerField(
         source="cinema_hall.capacity", read_only=True
     )
-    show_time = serializers.DateTimeField(format="%Y-%m-%d")
+    show_time = serializers.DateTimeField()
 
     class Meta:
         model = MovieSession
@@ -97,7 +98,11 @@ class TicketSerializer(serializers.ModelSerializer):
 class MovieSessionDetailSerializer(MovieSessionSerializer):
     movie = MovieMovieSessionSerializer(many=False, read_only=True)
     cinema_hall = CinemaHallSerializer(many=False, read_only=True)
-    taken_places = TicketSerializer(many=True, source="tickets")
+    taken_places = SerializerMethodField()
+
+    def get_taken_places(self, obj):
+        tickets = Ticket.objects.filter(movie_session=obj)
+        return [{'row': t.row, 'seat': t.seat} for t in obj.tickets.all()]
 
     class Meta:
         model = MovieSession

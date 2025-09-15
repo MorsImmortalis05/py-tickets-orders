@@ -62,15 +62,13 @@ class MovieSession(models.Model):
 
     @property
     def taken_places(self):
-        return Ticket.objects.filter(movie_session=self)
+        return self.tickets.all()
 
     @property
     def tickets_available(self):
         seats = self.cinema_hall.capacity
-        sold_seats = self.taken_places
-        if sold_seats.count() == 0:
-            return seats
-        return seats - self.taken_places.count()
+        sold_seats = self.taken_places.count()
+        return seats - sold_seats
 
 
 class Order(models.Model):
